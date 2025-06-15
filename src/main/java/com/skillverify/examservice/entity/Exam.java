@@ -3,8 +3,6 @@ package com.skillverify.examservice.entity;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-import org.hibernate.annotations.GenericGenerator;
-
 import com.skillverify.examservice.enums.ExamStatus;
 
 import jakarta.annotation.PostConstruct;
@@ -36,9 +34,10 @@ public class Exam {
     @Column(nullable = false)
 	private UUID jobId;
 	
-    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
 	private String email;
 	
+	@Enumerated(EnumType.STRING)
 	private ExamStatus status;
 	
 	private LocalDateTime scheduleTime;
