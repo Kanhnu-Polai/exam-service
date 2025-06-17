@@ -12,4 +12,5 @@ public interface ExamRepository  extends JpaRepository<Exam, UUID>{
 	List<Exam> findByEmail(String email);
 	
 	List<Exam> findByJobId(UUID jobId);
+	boolean existsByJobIdAndEmail(UUID jobId, String email);
 }
