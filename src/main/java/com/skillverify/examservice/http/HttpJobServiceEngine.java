@@ -21,7 +21,7 @@ public class HttpJobServiceEngine {
 	
 	private ResponseEntity<?> makeValidationCallToJobService(UUID jobId) {
 	  // TODO:Replace with real job-service end-point later
-		return null;
+		throw new RuntimeException("Simulated job-service failure");
 	}
 	
 	

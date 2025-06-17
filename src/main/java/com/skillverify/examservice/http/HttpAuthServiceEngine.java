@@ -1,6 +1,5 @@
 package com.skillverify.examservice.http;
 
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
@@ -21,7 +20,7 @@ public class HttpAuthServiceEngine {
 	
 	public ValidateResponse makeAuthServiceValidationCall(String token) {
 		
-		log.info("HtttpAUthServiceEngine || makeAuthServiceValidationCall() called for email: {} by {}", token, System.getProperty("user.name"));
+		log.info("HtttpAuthServiceEngine || makeAuthServiceValidationCall() called for email: {} by {}", token, System.getProperty("user.name"));
 		
 		ValidateResponse response = restClient.get()
 				.uri("http://localhost:8080/api/auth/validate")
