@@ -12,6 +12,7 @@ import com.skillverify.examservice.enums.ExamStatus;
 import com.skillverify.examservice.exceptions.ExamAlreadyExistException;
 import com.skillverify.examservice.exceptions.JobNotFoundException;
 import com.skillverify.examservice.http.HttpJobServiceEngine;
+import com.skillverify.examservice.notifications.NotificationManager;
 import com.skillverify.examservice.repository.ExamRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -25,23 +26,25 @@ public class ExamService {
 	private final ExamRepository respository;
 
 	private final HttpJobServiceEngine jobServiceEngine;
+	
+	private final NotificationManager manager;
 
 	@Transactional
 	public Exam scheduleExam(ScheduleExamRequest request, String emailFromToken) {
 		log.info("ExamService || scheduleExam() called for jobId: {} by {}", request.getJobId(), emailFromToken);
 
 		// Validate jobId with job-service
+//
+//		if (jobServiceEngine.isJobExists(request.getJobId()) != true) {
+//			log.error("ExamService || scheduleExam() ❌ Job not found with ID: {}", request.getJobId());
+//
+//			throw new JobNotFoundException(ErrorCodeEnum.JOB_NOT_FOUND);
+//		}
 
-		if (jobServiceEngine.isJobExists(request.getJobId()) != true) {
-			log.error("ExamService || scheduleExam() ❌ Job not found with ID: {}", request.getJobId());
-
-			throw new JobNotFoundException(ErrorCodeEnum.JOB_NOT_FOUND);
-		}
-
-		// Check for specific email the job id scheduled or not
-		if (respository.existsByJobIdAndEmail(request.getJobId(), emailFromToken)) {
-			throw new ExamAlreadyExistException(ErrorCodeEnum.EXAM_ALREADY_SCHEDULED);
-		}
+//		// Check for specific email the job id scheduled or not
+//		if (respository.existsByJobIdAndEmail(request.getJobId(), emailFromToken)) {
+//			throw new ExamAlreadyExistException(ErrorCodeEnum.EXAM_ALREADY_SCHEDULED);
+//		}
 
 		LocalDateTime finalScheduleTime = request.getScheduleTime() != null ? request.getScheduleTime()
 				: LocalDateTime.now().plusDays(2);
@@ -58,7 +61,15 @@ public class ExamService {
 				.build();
 
 		Exam savedExam = respository.save(exam);
+		
+		manager.sendScheduleExamNotification(savedExam);
+		log.info("ExamService || Exam saved successfully for jobId: {}", savedExam.getJobId());
+		
+		
+		
+		
 		log.info("ExamService || Exam scheduled successfully for jobId: {}", savedExam.getJobId());
+		
 
 		return savedExam;
 

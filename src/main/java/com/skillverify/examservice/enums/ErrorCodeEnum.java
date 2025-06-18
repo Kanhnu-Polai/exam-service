@@ -12,7 +12,9 @@ public enum ErrorCodeEnum {
 	EXAM_NOT_FOUND("5002", "The exam you are trying to access does not exist.", "EXAM_SERVICE"),
 	INVALIDE_TOKEN("5003", "Invalid or expired token", "EXAM_SERVICE"),
 	EMAIL_REQUIRED("5004", "Email is required", "EXAM_SERVICE"),
-	FAILED_TO_CALL_JOB_SERVICE("5005", "Failed to communicate with job-service","EXAM_SERVICE");;
+	FAILED_TO_CALL_JOB_SERVICE("5005", "Failed to communicate with job-service","EXAM_SERVICE"),
+	FAILED_TO_CALL_NOTIFICATION_SERVICE("5006", "Failed to communicate with notification-service","EXAM_SERVICE"),
+	;
 	
 	
 	
