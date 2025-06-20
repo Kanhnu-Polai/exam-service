@@ -9,8 +9,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.skillverify.examservice.enums.ErrorCodeEnum;
+import com.skillverify.examservice.exceptions.MissingAuthorizationHeaderException;
 import com.skillverify.examservice.http.HttpAuthServiceEngine;
 import com.skillverify.examservice.http.ValidateResponse;
+import com.skillverify.examservice.utils.ExceptionResponseUtil;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -34,45 +37,46 @@ public class JwtAuthFilter extends OncePerRequestFilter {
 	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
 			throws ServletException, IOException {
 		log.info("JwtAuthFilter || Intercepted request: {}", request.getRequestURI());
-		// TODO Auto-generated method stub
-		
+
 		String token = getTokenFromHeader(request);
-		
-		if(token == null) {
+
+		if (token == null) {
 			log.warn("JwtAuthFilter || Missing or malformed Authorization header.");
-			response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing or malformed Authorization header.");
-			return;
+			ExceptionResponseUtil.sendErrorResponse(
+			        response,
+			        "Missing or malformed Authorization header",
+			        "5007",
+			        "EXAM_SERVICE"
+			    );
+			    return;
 		}
-		
-		
+
 		log.info("JwtAuthFilter || doFilterInternal() called for token: {}", token);
 		try {
-			  ValidateResponse validateResponse =  httpAuthServiceEngine.makeAuthServiceValidationCall(token);
-			  
-			  if(!"valid".equalsIgnoreCase(validateResponse.getStatus())) {
-				  throw new RuntimeException("Invalid user status");
-			  }
-			  
-			  
-			  Authentication authentication = new UsernamePasswordAuthenticationToken(validateResponse.getEmail(), null,List.of());
-			  
-			  
-			  SecurityContextHolder.getContext().setAuthentication(authentication);
-			  log.info("JwtAuthFilter || Authenticated email set: {}", validateResponse.getEmail());
+			ValidateResponse validateResponse = httpAuthServiceEngine.makeAuthServiceValidationCall(token);
+			log.info("JwtAuthFilter || Response from auth service: {}", validateResponse);
+
+			if (!"valid".equalsIgnoreCase(validateResponse.getStatus())) {
+				throw new RuntimeException("Invalid user status");
+			}
+
+			Authentication authentication = new UsernamePasswordAuthenticationToken(validateResponse.getEmail(), null, List.of());
+			SecurityContextHolder.getContext().setAuthentication(authentication);
+			log.info("JwtAuthFilter || Authenticated email set: {}", validateResponse.getEmail());
 
 		} catch (Exception e) {
 			log.error("JwtAuthFilter || Error validating token: {}", e.getMessage());
-			response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid token.");
+			response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+			response.setContentType("application/json");
+
+			String message = e.getMessage().toLowerCase().contains("expired") ?
+					"Token has expired" : "Invalid token";
+
+			response.getWriter().write("{\"error\": \"" + message + "\"}");
 			return;
 		}
-		
-		
-		
+
 		filterChain.doFilter(request, response);
-		
-		
-		
-		
 	}
 	
 	

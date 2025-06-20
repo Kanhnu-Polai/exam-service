@@ -20,8 +20,6 @@ public class GobalExceptionHandler {
 		exceptionResponse.setCode(e.getErrorCodeEnum().getCode());
 		exceptionResponse.setService(e.getErrorCodeEnum().getService());
 		
-		
-		
 		return ResponseEntity.status(HttpStatus.CONFLICT).body(exceptionResponse);
 		
 		
@@ -50,6 +48,19 @@ public class GobalExceptionHandler {
 		exceptionResponse.setService(e.getErrorCodeEnum().getService());
 		
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse);
+	}
+	
+	
+	public ResponseEntity<ExceptionResponse> handleMisssingAuthorozationHeader(MissingAuthorizationHeaderException e){
+		
+		ExceptionResponse exceptionResponse = ExceptionResponse.builder()
+				.message(e.getErrorCodeEnum().getMessage())
+				.code(e.getErrorCodeEnum().getCode())
+				.service(e.getErrorCodeEnum().getService())
+				.build();
+		
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+		
 	}
 
 }
